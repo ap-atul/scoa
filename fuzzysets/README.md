@@ -27,6 +27,9 @@ out = A.comp()
 # difference
 out = A.diff(B)
 
+# cartesian product
+out = A.cartesian(B)
+
 ```
 
 # TODO
