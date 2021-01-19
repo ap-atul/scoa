@@ -1,3 +1,23 @@
+class FuzzyRel:
+    def __init__(self, mat):
+        self._mat = mat
+
+    def __repr__(self):
+        string = list()
+        string.append("@relation")
+        string.append("\n")
+        for i in range(len(self._mat)):
+            string.append("|")
+            for j in range(len(self._mat[0])):
+                string.append(str(self._mat[i][j]))
+            string.append("|\n")
+
+        return '  '.join(string)
+
+    @property
+    def mat(self):
+        return self._mat
+
 class FuzzySet:
     def __init__(self, data):
         self._set = dict()
@@ -22,7 +42,7 @@ class FuzzySet:
         return self._set[key]
 
     def __repr__(self):
-        return str(self._set)
+        return "@fuzzy\n" + str(self._set)
 
     def union(self, other):  # max(deg(A), deg(B))
         ret = dict()
@@ -56,22 +76,31 @@ class FuzzySet:
         return self.inter(other.comp())
 
     def cartesian(self, other):  # min(deg(Ax), deg(By))
-        ret = dict()
+        ret = list()
 
-        for akey, aval in self._set.items():
-            min_ele = (akey, aval)
-            for bkey, bval in other._set.items():
-                min_ele  = min(min_ele, (akey, aval), (bkey, bval), key= lambda x: x[1])
-
-            if min_ele[0] in ret:
-                ret[str(min_ele[0]) + "_"] = min_ele[1]
-            else:
-                ret[min_ele[0]] = min_ele[1]
-
-        return FuzzySet(ret)
+        for _, aval in self._set.items():
+            min_ele = list()
+            for _, bval in other._set.items():
+                min_  = min(aval, bval)
+                min_ele.append(min_)
+            ret.append(min_ele)
 
 
+        return FuzzyRel(ret)
 
+    def min_max_com(self, rel):   # B(x, z) = max( min(A(x, y), min(R(y, z)))
+        if not isinstance(rel, FuzzyRel):
+            raise Exception("FuzzyRel type is required for the composition.")
 
+        ret = list()
+        vec = list(self._set.values())
 
+        for c in range(len(rel.mat)):
+            col = [x[c] for x in rel.mat]
+            mins = list()
 
+            for val in zip(vec, col):
+                mins.append(min(val))
+            ret.append(max(mins))
+
+        return FuzzySet(dict(zip(self._set.keys(), ret)))
