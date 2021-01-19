@@ -55,6 +55,23 @@ class FuzzySet:
     def diff(self, other):  # min(deg(A), 1 - deg(B))
         return self.inter(other.comp())
 
+    def cartesian(self, other):  # min(deg(Ax), deg(By))
+        ret = dict()
+
+        for akey, aval in self._set.items():
+            min_ele = (akey, aval)
+            for bkey, bval in other._set.items():
+                min_ele  = min(min_ele, (akey, aval), (bkey, bval), key= lambda x: x[1])
+
+            if min_ele[0] in ret:
+                ret[str(min_ele[0]) + "_"] = min_ele[1]
+            else:
+                ret[min_ele[0]] = min_ele[1]
+
+        return FuzzySet(ret)
+
+
+
 
 
 
