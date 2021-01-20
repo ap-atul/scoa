@@ -11,5 +11,6 @@ The function is given by:
 ``` f(x, y) = (a - x) ^ 2 + b(y - x ^ 2) ^ 2 ```
 
 The visualization can be achieved as::
+
 ![plot](https://github.com/AP-Atul/scoa/blob/main/genetic/plot.svg)
 
