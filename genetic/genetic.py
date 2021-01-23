@@ -3,94 +3,77 @@ import random
 def rosenbrock(x, y):
     return abs((1- x) ** 2 + 100 * (y - x ** 2) ** 2)
 
-class Genetic:
-    def __init__(
-            self,
-            gensize=100,
-            gencount=100,
-            bounds=[-100, 100],
-            mutation_rate=0.2
-        ):
-        self._gensize = gensize
-        self._gencount = gencount
-        self._bound = bounds
-        self._mutation = mutation_rate
+MIN, MAX = -10, 10
+MUTATION = 0.4
+TOURNEY = 4
 
+def get_rand(lower=MIN, higher=MAX):
+    return random.randrange(lower, higher)
 
-    def rand_generation(self):
-        generation = list()
-        for _ in range(self._gensize):
-            random_pnt = (random.randint(self._bound[0], self._bound[1]), random.randint(self._bound[0], self._bound[1]))
-            generation.append(random_pnt)
-        return generation
+def gen_rand_population(pop_size=100):
+    return [(get_rand(), get_rand()) for _ in range(pop_size)]
 
-    def inverse(self, val):
-        return 1 if val == 0 else 1 / val
+def crossover(one, two):
+    assert len(one) == len(two)
+    r = random.randint(0, 1)
+    n = random.randint(0, 1)
+    return (one[r], two[n]), (two[r], one[n])
 
-    def fitness(self, solution):
-        return self.inverse(rosenbrock(solution[0], solution[1]))
+def mutate(one):
+    if get_rand(0, 1) == MUTATION:
+        print("mutating this shit")
+        return (get_rand(), one[random.randint(0, 1)])
+    return one
 
-    def probability(self, fitness_score, total):
-        assert total != 0
-        return fitness_score / total
+def fitness(one):
+    return rosenbrock(one[0], one[1])
 
-    def weighted_choice(self, items):
-        weighted_total = sum(item[1] for item in items)
-        n = random.uniform(0, weighted_total)
-        for item, weight in items:
-            if n < weight:
-                return item
-            n -= weight
-        return item
+def tournament(pop):
+    tourn = list()
+    for _ in range(TOURNEY):
+        r = get_rand(0, len(pop))
+        tourn.append(pop[r])
 
-    def crossover(self, sol1, sol2):
-        pos = 1
-        return sol1[: pos] + sol2[pos: ], sol2[: pos] + sol1[pos: ]
+    fitnesses = [fitness(genome) for genome in tourn]
+    return pop[fitnesses.index(max(fitnesses))]
 
-    def mutate(self, solution):
-        tmp_sol = [solution[0], solution[1]]
-        for i in range(len(solution)):
-            if random.random() > self._mutation:
-                tmp_sol[i] = random.randint(self._bound[0], self._bound[1])
-        mutated_sol = (tmp_sol[0], tmp_sol[1])
-        return mutated_sol
+def get_best(pop):
+    fitnesses = [fitness(genome) for genome in pop]
+    return pop[fitnesses.index(max(fitnesses))], max(fitnesses)
 
-    def run(self):
-        generations, current_gen = list(), 0
+def run_genetic(pop_size, gen_size, disp=True):
+    result = list()
+    best_fitness = None
+    best_solution = None
 
-        gen = self.rand_generation()
-        fitness_scores = [self.fitness(sol) for sol in gen]
-        total_val = sum(fitness_scores)
-        probabilities = [self.probability(score, total_val) for score in fitness_scores]
-        weighted_gen = [((sol[0], sol[1]), probabilities[i]) for i, sol in enumerate(gen)]
+    pop = gen_rand_population(pop_size)
+    best_solution, best_fitness = get_best(pop)
+    for i in range(gen_size):
+        pop = sorted(pop, key=lambda gene: fitness(gene), reverse=True)
 
-        gen = list()
-        for _ in range(len(weighted_gen)):
-            parent1 = self.weighted_choice(weighted_gen)
-            parent2 = self.weighted_choice(weighted_gen)
+        new_pop = pop[0: 2]
 
-            child1, child2 = self.crossover(parent1, parent2)
+        if disp:
+            print(f"Generation :: {i}")
 
-            child1 = self.mutate(child1)
-            child2 = self.mutate(child2)
+        for i in range(int(len(pop) / 2) - 1):
+            parent1 = tournament(pop)
+            parent2 = tournament(pop)
+            child1, child2 = crossover(parent1, parent2)
+            child1 = mutate(child1)
+            child2 = mutate(child2)
+            new_pop.append(child1)
+            new_pop.append(child2)
 
-            gen.append(child1)
-            gen.append(child2)
+            sol, fit = get_best(pop)
+            if fit > best_fitness:
+                best_solution, best_fitness = sol, fit
 
-        generations.append(gen)
+            if disp:
+                print(f"Population len:: {len(pop)}, Fitness :: {fit}")
 
-        fittest = self.fitness(generations[0][0])
-        sol = generations[0][0]
-        for gen in generations:
-            fitness_scores = [self.fitness(sol) for sol in gen]
+        pop = new_pop
 
-            for score in fitness_scores:
-                if score >= fittest:
-                    fittest = score
-                    sol = gen[fitness_scores.index(score)]
-
-        print(fittest)
-        print(sol)
-
+    return best_solution, best_fitness
 
 
