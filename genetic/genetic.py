@@ -1,12 +1,12 @@
 import random
 import math
 
+MIN, MAX = -10, 10
+MUTATION = 0.5
+TOURNEY = 4
+
 def rosenbrock(x): # https://www.sfu.ca/~ssurjano/rosen.html
     return sum([ ( 100 * math.pow((x[i + 1] - math.pow(x[i], 2)), 2) + math.pow((x[i] - 1), 2)  )  for i in range(len(x) - 1)])
-
-MIN, MAX = -10, 10
-MUTATION = 0.4
-TOURNEY = 4
 
 def get_rand(lower=MIN, higher=MAX):
     return random.randrange(lower, higher)
@@ -20,19 +20,15 @@ def crossover(one, two):
     return one[r: ] + two[0: r], one[0: r] + two[r: ]
 
 def mutate(one):
-    if (r :=  get_rand(0, 1)) == MUTATION:
-        one[r] = get_rand()
+    if (r :=  random.uniform(0, 2)) <= MUTATION:
+        one[random.randint(0, len(one) - 1)] = get_rand()
     return one
 
 def fitness(one):
     return rosenbrock(one)
 
 def tournament(pop):
-    tourn = list()
-    for _ in range(TOURNEY):
-        r = get_rand(0, len(pop))
-        tourn.append(pop[r])
-
+    tourn = [pop[get_rand(0, len(pop))] for _ in range(TOURNEY)]
     fitnesses = [fitness(genome) for genome in tourn]
     return pop[fitnesses.index(max(fitnesses))]
 
@@ -41,10 +37,6 @@ def get_best(pop):
     return pop[fitnesses.index(max(fitnesses))], sum(fitnesses)
 
 def run_genetic(pop_size, gen_size, disp=True):
-    result = list()
-    best_fitness = None
-    best_solution = None
-
     pop = gen_rand_population(pop_size)
     best_solution, best_fitness = get_best(pop)
     for i in range(gen_size + 1):
@@ -55,13 +47,10 @@ def run_genetic(pop_size, gen_size, disp=True):
             print(f"\nGeneration :: {i}")
 
         for i in range(int(len(pop) / 2) - 1):
-            parent1 = tournament(pop)
-            parent2 = tournament(pop)
+            parent1, parent2 = tournament(pop), tournament(pop)
             child1, child2 = crossover(parent1, parent2)
-            child1 = mutate(child1)
-            child2 = mutate(child2)
-            new_pop.append(child1)
-            new_pop.append(child2)
+            child1, child2 = mutate(child1), mutate(child2)
+            new_pop += [child1, child2]
 
             sol, fit = get_best(pop)
             if fit < best_fitness:
