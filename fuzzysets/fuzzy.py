@@ -4,14 +4,12 @@ class FuzzyRel:
 
     def __repr__(self):
         string = list()
-        string.append("@relation")
-        string.append("\n")
+        string.append("@relation\n")
         for i in range(len(self._mat)):
             string.append("|")
             for j in range(len(self._mat[0])):
                 string.append(str(self._mat[i][j]))
             string.append("|\n")
-
         return '  '.join(string)
 
     @property
@@ -35,7 +33,6 @@ class FuzzySet:
         for item, val in data:
             if item in self._set:
                 raise Exception("Sets cannot have duplicate values")
-
             self._set[item] = val
 
     def __getitem__(self, key):
@@ -79,12 +76,7 @@ class FuzzySet:
         ret = list()
 
         for _, aval in self._set.items():
-            min_ele = list()
-            for _, bval in other._set.items():
-                min_  = min(aval, bval)
-                min_ele.append(min_)
-            ret.append(min_ele)
-
+            ret.append([min(aval, bval) for _, bval in other._set.items()])
 
         return FuzzyRel(ret)
 
@@ -97,10 +89,7 @@ class FuzzySet:
 
         for c in range(len(rel.mat)):
             col = [x[c] for x in rel.mat]
-            mins = list()
-
-            for val in zip(vec, col):
-                mins.append(min(val))
+            mins = [min(val) for val in zip(vec, col)]
             ret.append(max(mins))
 
         return FuzzySet(dict(zip(self._set.keys(), ret)))
