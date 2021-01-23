@@ -11,7 +11,7 @@ TOURNEY = 4
 def get_rand(lower=MIN, higher=MAX):
     return random.randrange(lower, higher)
 
-def gen_rand_population(pop_size=100, dim=2):
+def gen_rand_population(pop_size=100, dim=10):
     return [[get_rand() for _ in range(dim)] for _ in range(pop_size)]
 
 def crossover(one, two):
@@ -38,7 +38,7 @@ def tournament(pop):
 
 def get_best(pop):
     fitnesses = [fitness(genome) for genome in pop]
-    return pop[fitnesses.index(max(fitnesses))], max(fitnesses)
+    return pop[fitnesses.index(max(fitnesses))], sum(fitnesses)
 
 def run_genetic(pop_size, gen_size, disp=True):
     result = list()
@@ -47,13 +47,12 @@ def run_genetic(pop_size, gen_size, disp=True):
 
     pop = gen_rand_population(pop_size)
     best_solution, best_fitness = get_best(pop)
-    for i in range(gen_size):
+    for i in range(gen_size + 1):
         pop = sorted(pop, key=lambda gene: fitness(gene))
-
         new_pop = pop[0: 2]
 
         if disp:
-            print(f"Generation :: {i}")
+            print(f"\nGeneration :: {i}")
 
         for i in range(int(len(pop) / 2) - 1):
             parent1 = tournament(pop)
@@ -65,11 +64,11 @@ def run_genetic(pop_size, gen_size, disp=True):
             new_pop.append(child2)
 
             sol, fit = get_best(pop)
-            if fit > best_fitness:
+            if fit < best_fitness:
                 best_solution, best_fitness = sol, fit
 
-            if disp:
-                print(f"Population len:: {len(pop)}, Fitness :: {fit}")
+        if disp:
+            print(f"  Population fitness :: {fit}")
 
         pop = new_pop
 
