@@ -1,7 +1,8 @@
 import random
+import math
 
-def rosenbrock(x, y):
-    return abs((1- x) ** 2 + 100 * (y - x ** 2) ** 2)
+def rosenbrock(x): # https://www.sfu.ca/~ssurjano/rosen.html
+    return sum([ ( 100 * math.pow((x[i + 1] - math.pow(x[i], 2)), 2) + math.pow((x[i] - 1), 2)  )  for i in range(len(x) - 1)])
 
 MIN, MAX = -10, 10
 MUTATION = 0.4
@@ -10,23 +11,21 @@ TOURNEY = 4
 def get_rand(lower=MIN, higher=MAX):
     return random.randrange(lower, higher)
 
-def gen_rand_population(pop_size=100):
-    return [(get_rand(), get_rand()) for _ in range(pop_size)]
+def gen_rand_population(pop_size=100, dim=2):
+    return [[get_rand() for _ in range(dim)] for _ in range(pop_size)]
 
 def crossover(one, two):
     assert len(one) == len(two)
-    r = random.randint(0, 1)
-    n = random.randint(0, 1)
-    return (one[r], two[n]), (two[r], one[n])
+    r = random.randint(0, len(one))
+    return one[r: ] + two[0: r], one[0: r] + two[r: ]
 
 def mutate(one):
-    if get_rand(0, 1) == MUTATION:
-        print("mutating this shit")
-        return (get_rand(), one[random.randint(0, 1)])
+    if (r :=  get_rand(0, 1)) == MUTATION:
+        one[r] = get_rand()
     return one
 
 def fitness(one):
-    return rosenbrock(one[0], one[1])
+    return rosenbrock(one)
 
 def tournament(pop):
     tourn = list()
@@ -49,7 +48,7 @@ def run_genetic(pop_size, gen_size, disp=True):
     pop = gen_rand_population(pop_size)
     best_solution, best_fitness = get_best(pop)
     for i in range(gen_size):
-        pop = sorted(pop, key=lambda gene: fitness(gene), reverse=True)
+        pop = sorted(pop, key=lambda gene: fitness(gene))
 
         new_pop = pop[0: 2]
 
