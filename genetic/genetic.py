@@ -1,7 +1,8 @@
+from matplotlib import pyplot as plt
 import random
 import math
 
-MIN, MAX = -10, 10
+MIN, MAX = -2, 2
 MUTATION = 0.5
 TOURNEY = 4
 
@@ -20,7 +21,7 @@ def crossover(one, two):
     return one[r: ] + two[0: r], one[0: r] + two[r: ]
 
 def mutate(one):
-    if (r :=  random.uniform(0, 2)) <= MUTATION:
+    if random.uniform(0, 2) <= MUTATION:
         one[random.randint(0, len(one) - 1)] = get_rand()
     return one
 
@@ -34,13 +35,14 @@ def tournament(pop):
 
 def get_best(pop):
     fitnesses = [fitness(genome) for genome in pop]
-    return pop[fitnesses.index(max(fitnesses))], sum(fitnesses)
+    return pop[fitnesses.index(max(fitnesses))], max(fitnesses)
 
 def run_genetic(pop_size, gen_size, disp=True):
     pop = gen_rand_population(pop_size)
     best_solution, best_fitness = get_best(pop)
+    fitnesses = list()
     for i in range(gen_size + 1):
-        pop = sorted(pop, key=lambda gene: fitness(gene))
+        pop = sorted(pop, key=lambda gene: fitness(gene), reverse=True)
         new_pop = pop[0: 2]
 
         if disp:
@@ -53,13 +55,17 @@ def run_genetic(pop_size, gen_size, disp=True):
             new_pop += [child1, child2]
 
             sol, fit = get_best(pop)
-            if fit < best_fitness:
+            fitnesses.append(fit)
+            if fit > best_fitness:
                 best_solution, best_fitness = sol, fit
 
         if disp:
             print(f"  Population fitness :: {fit}")
 
         pop = new_pop
+
+    plt.plot(fitnesses)
+    plt.show()
 
     return best_solution, best_fitness
 
