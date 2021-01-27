@@ -47,26 +47,19 @@ def run_genetic(pop_size, gen_size, disp=True):
 
         if disp:
             print(f"\nGeneration :: {i}")
-
         for i in range(int(len(pop) / 2) - 1):
             parent1, parent2 = tournament(pop), tournament(pop)
             child1, child2 = crossover(parent1, parent2)
             child1, child2 = mutate(child1), mutate(child2)
             new_pop += [child1, child2]
-
             sol, fit = get_best(pop)
             fitnesses.append(fit)
             if fit > best_fitness:
                 best_solution, best_fitness = sol, fit
-
         if disp:
             print(f"  Population fitness :: {fit}")
-
         pop = new_pop
 
     plt.plot(fitnesses)
     plt.show()
-
     return best_solution, best_fitness
-
-
