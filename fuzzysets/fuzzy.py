@@ -84,8 +84,7 @@ class FuzzySet:
         if not isinstance(rel, FuzzyRel):
             raise Exception("FuzzyRel type is required for the composition.")
 
-        ret = list()
-        vec = list(self._set.values())
+        ret, vec = list(), list(self._set.values())
 
         for c in range(len(rel.mat)):
             col = [x[c] for x in rel.mat]
