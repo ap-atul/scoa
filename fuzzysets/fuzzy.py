@@ -3,8 +3,7 @@ class FuzzyRel:
         self._mat = mat
 
     def __repr__(self):
-        string = list()
-        string.append("@relation\n")
+        string = ["@relation\n"]
         for i in range(len(self._mat)):
             string.append("|")
             for j in range(len(self._mat[0])):
@@ -64,10 +63,11 @@ class FuzzySet:
         return FuzzySet(ret)
 
     def comp(self):  # 1 - deg(A)
+        ret = dict()
         for key in self._set:
-            self._set[key] = 1 - self._set[key]
+            ret[key] = 1 - self._set[key]
 
-        return self
+        return FuzzySet(ret)
 
     def diff(self, other):  # min(deg(A), 1 - deg(B))
         return self.inter(other.comp())
