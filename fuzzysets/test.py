@@ -8,6 +8,7 @@ print(b)
 print()
 
 # Set operations
+print(a.union(b))
 print(a.comp())
 print(a.diff(b))
 print(a.inter(b))

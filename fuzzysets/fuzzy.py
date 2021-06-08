@@ -65,7 +65,7 @@ class FuzzySet:
     def comp(self):  # 1 - deg(A)
         ret = dict()
         for key in self._set:
-            ret[key] = 1 - self._set[key]
+            ret[key] = round(1 - self._set[key], 2)
 
         return FuzzySet(ret)
 
