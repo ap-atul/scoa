@@ -19,8 +19,8 @@ ax.plot_surface(X, Y, Z, rstride=1, cstride=1, norm=LogNorm(),
                 linewidth=0, edgecolor='none', cmap="viridis")
 
 # Set the axis limits so that they are the same as in the figure above.
-ax.set_xlim([-2, 2.0])
-ax.set_ylim([-1, 3.0])
+ax.set_xlim([-2, 2])
+ax.set_ylim([-1, 3])
 ax.set_zlim([0, 2500])
 
 plt.xlabel("x")

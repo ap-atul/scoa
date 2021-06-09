@@ -15,6 +15,7 @@ class FuzzyRel:
     def mat(self):
         return self._mat
 
+
 class FuzzySet:
     def __init__(self, data):
         self._set = dict()
@@ -44,7 +45,7 @@ class FuzzySet:
         ret = dict()
 
         for akey, bkey in zip(self._set, other._set):
-            aval , bval = self[akey], other[bkey]
+            aval, bval = self[akey], other[bkey]
 
             key, val = (akey, aval) if (aval > bval) else (bkey, bval)
             ret[key] = val
@@ -55,7 +56,7 @@ class FuzzySet:
         ret = dict()
 
         for akey, bkey in zip(self._set, other._set):
-            aval , bval = self[akey], other[bkey]
+            aval, bval = self[akey], other[bkey]
 
             key, val = (akey, aval) if (aval < bval) else (bkey, bval)
             ret[key] = val
@@ -80,7 +81,7 @@ class FuzzySet:
 
         return FuzzyRel(ret)
 
-    def min_max_com(self, rel):   # B(x, z) = max( min(A(x, y), min(R(y, z)))
+    def min_max_com(self, rel):  # B(x, z) = max( min(A(x, y), min(R(y, z)))
         if not isinstance(rel, FuzzyRel):
             raise Exception("FuzzyRel type is required for the composition.")
 
